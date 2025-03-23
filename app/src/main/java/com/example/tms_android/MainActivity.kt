@@ -1,6 +1,8 @@
 package com.example.tms_android
 
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.wifi.WifiManager
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -11,7 +13,8 @@ import android.view.View
 import com.google.android.material.textfield.TextInputEditText
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var textInputName : TextInputEditText;
+    private lateinit var textInputName : TextInputEditText
+    private val wifiBroadcastReceiver = WifiBroadcastReceiver()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,11 +33,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        registerReceiver(wifiBroadcastReceiver, IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION))
         Log.d("MYLOG", "onStart")
     }
 
     override fun onStop() {
         super.onStop()
+        unregisterReceiver(wifiBroadcastReceiver)
         Log.d("MYLOG", "onStop")
     }
 
