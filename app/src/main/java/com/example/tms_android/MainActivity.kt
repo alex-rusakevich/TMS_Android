@@ -13,9 +13,6 @@ import android.view.View
 import com.google.android.material.textfield.TextInputEditText
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var textInputName : TextInputEditText
-    private val wifiBroadcastReceiver = WifiBroadcastReceiver()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -25,48 +22,5 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-        textInputName = findViewById(R.id.textInputName)
-
-        Log.d("MYLOG", "onCreate")
-    }
-
-    override fun onStart() {
-        super.onStart()
-        registerReceiver(wifiBroadcastReceiver, IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION))
-        Log.d("MYLOG", "onStart")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        unregisterReceiver(wifiBroadcastReceiver)
-        Log.d("MYLOG", "onStop")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("MYLOG", "onDestroy")
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        Log.d("MYLOG", "onRestart")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d("MYLOG", "onResume")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.d("MYLOG", "onPause")
-    }
-
-    fun launchSecondActivity(view: View) {
-        val intent = Intent(this, SecondActivity::class.java)
-        val name = textInputName.getText().toString().trim()
-        intent.putExtra("name", name)
-        startActivity(intent)
     }
 }
