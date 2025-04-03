@@ -3,4 +3,5 @@
     <string name="greet">Hello, %1$s!</string>
     <string name="beautiful_button">Beautiful button</string>
     <string name="toyota">TOYOTA</string>
+    <string name="button_pressed">The button has been pressed!</string>
 </resources>
