@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="greet">Привет, %1$s!</string>
+    <string name="beautiful_button">Красивая кнопка</string>
+    <string name="toyota">ТОЙОТА</string>
+    <string name="button_pressed">Кнопка нажата!</string>
+    <string name="input_your_text">Введите текст сюда!</string>
+    <string name="text_will_be_here">Ваш текст появится здесь, просто нажмите кнопку</string>
+</resources>
