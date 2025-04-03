@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">TMS_Android</string>
+    <string name="greet">Hello, %1$s!</string>
+</resources>
