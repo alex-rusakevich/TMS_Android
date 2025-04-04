@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragment_container, FragmentA())
+            .replace(R.id.fragment_container, FragmentA.newInstance("Data from Activity"))
             .commit()
     }
 }

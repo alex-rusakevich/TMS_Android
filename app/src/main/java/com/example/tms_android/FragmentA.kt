@@ -5,26 +5,39 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.TextView
+
+private const val ARG_PARAM1 = "param1"
 
 class FragmentA : Fragment() {
-    lateinit var showFragmentBButton: Button
+    private var param1: String? = null
+    private lateinit var textView1: TextView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            param1 = it.getString(ARG_PARAM1)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_a, container, false)
+        var view = inflater.inflate(R.layout.fragment_a, container, false)
 
-        showFragmentBButton = view.findViewById(R.id.showFragmentBButton)
-
-        showFragmentBButton.setOnClickListener {
-            requireActivity().supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, FragmentB())
-                .commit()
-        }
+        textView1 = view.findViewById(R.id.textView1)
+        textView1.text = param1
 
         return view
+    }
+
+    companion object {
+        fun newInstance(param1: String) =
+            FragmentA().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_PARAM1, param1)
+                }
+            }
     }
 }
