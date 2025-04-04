@@ -24,5 +24,12 @@ class SecondActivity : AppCompatActivity() {
 
         val name = this.intent.getStringExtra("name")
         textViewName.text = getString(R.string.greet, name)
+
+        val myFragment = MyFragment()
+
+        getSupportFragmentManager()
+            .beginTransaction()
+            .replace(R.id.fragment_container, myFragment)
+            .commit()
     }
 }
