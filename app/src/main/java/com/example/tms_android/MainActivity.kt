@@ -19,8 +19,9 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val intent = Intent(this, SecondActivity::class.java)
-        intent.putExtra("name", "Second Activity")
-        startActivity(intent)
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, FragmentA())
+            .commit()
     }
 }
