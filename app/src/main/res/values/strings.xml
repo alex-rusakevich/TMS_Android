@@ -1,4 +1,10 @@
 <resources>
-    <string name="app_name">TMS_Android</string>
+    <string name="app_name" translatable="false">TMS Android</string>
     <string name="greet">Hello, %1$s!</string>
+    <string name="beautiful_button">Beautiful button</string>
+    <string name="toyota">TOYOTA</string>
+    <string name="button_pressed">The button has been pressed!</string>
+    <string name="input_your_text">Input your text here!</string>
+    <string name="text_will_be_here">The text will be here, just press the button</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
