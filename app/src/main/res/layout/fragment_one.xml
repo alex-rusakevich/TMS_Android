@@ -5,9 +5,25 @@
     android:layout_height="match_parent"
     tools:context=".FragmentOne">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_fragment_one" />
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/hello_fragment_one" />
+
+        <EditText
+            android:id="@+id/editTextText"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:autofillHints="@string/hello_fragment_one"
+            android:ems="10"
+            android:inputType="text"
+            android:text="@string/hello_fragment_one"
+            tools:ignore="LabelFor" />
+    </LinearLayout>
 
 </FrameLayout>
