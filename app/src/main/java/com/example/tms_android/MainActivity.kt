@@ -6,8 +6,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.viewpager2.widget.ViewPager2
 import com.example.tms_android.databinding.ActivityMainBinding
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 
+/*
+* Задача 2: ViewPager2 с Tabs
+Сделай экран с TabLayout и ViewPager2, в каждом табе — отдельный фрагмент
+* */
 class MainActivity : AppCompatActivity() {
     private lateinit var viewBinding: ActivityMainBinding
 
@@ -23,9 +30,16 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        viewBinding.buttonChangeTextView.setOnClickListener {
-            Log.d("MYLOG", "Button clicked")
-            viewBinding.textView.text = getString(R.string.after_change)
+        setupViewPager()
+    }
+
+    private fun setupViewPager() {
+        viewBinding.let {
+            val adapter = MyPagerAdapter(this)
+            it.viewPager.adapter = adapter
+            TabLayoutMediator(it.tabLayout, it.viewPager) { tab, position ->
+                tab.text = "Tab ${position + 1}"
+            }.attach()
         }
     }
 }
