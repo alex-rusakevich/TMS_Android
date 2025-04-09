@@ -7,4 +7,6 @@
     <string name="hello_fragment_one">Hello from fragment one!</string>
     <string name="hello_fragment_two">Hello from fragment two!</string>
     <string name="add_new_fragment">Add new fragment</string>
+    <string name="new_fragment_cancel">Cancelled creating a new tab fragment</string>
+    <string name="cancel">Cancel</string>
 </resources>

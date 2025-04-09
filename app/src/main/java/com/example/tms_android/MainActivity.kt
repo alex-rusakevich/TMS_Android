@@ -3,6 +3,7 @@ package com.example.tms_android
 import DynamicFragmentAdapter
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -10,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.example.tms_android.databinding.ActivityMainBinding
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
@@ -43,9 +45,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewBinding.buttonAddFragment.setOnClickListener {
-            (viewBinding.viewPager.adapter as DynamicFragmentAdapter).addFragment(
+            val createdIndex = (viewBinding.viewPager.adapter as DynamicFragmentAdapter).addFragment(
                 FragmentOne()
             )
+
+            val snackbar = Snackbar.make(viewBinding.root, getString(R.string.cancel), Snackbar.LENGTH_LONG)
+
+            snackbar.setAction(getString(R.string.cancel)) {
+                Toast.makeText(viewBinding.root.context, getString(R.string.new_fragment_cancel), Toast.LENGTH_SHORT).show()
+                (viewBinding.viewPager.adapter as DynamicFragmentAdapter).removeFragment(createdIndex)
+            }
+
+            snackbar.show()
         }
     }
 
