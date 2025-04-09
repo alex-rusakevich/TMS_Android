@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">TMS_Android</string>
     <string name="greet">Hello, %1$s!</string>
+    <string name="before_change">Before change</string>
+    <string name="after_change">After change</string>
+    <string name="change_text">Change the text</string>
 </resources>
