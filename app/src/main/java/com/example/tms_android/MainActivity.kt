@@ -2,17 +2,15 @@ package com.example.tms_android
 
 import DynamicFragmentAdapter
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.viewpager2.widget.ViewPager2
 import com.example.tms_android.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
 /*
@@ -66,7 +64,7 @@ class MainActivity : AppCompatActivity() {
             it.viewPager.adapter = adapter
             TabLayoutMediator(it.tabLayout, it.viewPager) { tab, position ->
                 tab.text = "Tab ${position + 1}"
-                tab.icon = getDrawable(R.drawable.baseline_123_24)
+                tab.icon = AppCompatResources.getDrawable(this, R.drawable.baseline_123_24)
             }.attach()
         }
     }
