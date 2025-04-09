@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
             it.viewPager.adapter = adapter
             TabLayoutMediator(it.tabLayout, it.viewPager) { tab, position ->
                 tab.text = "Tab ${position + 1}"
+                tab.icon = getDrawable(adapter.getPageIcon(position))
             }.attach()
         }
     }

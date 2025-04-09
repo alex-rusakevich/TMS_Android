@@ -16,4 +16,8 @@ class MyPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity
             else -> throw IllegalStateException("Unexpected position: $position")
         }
     }
+
+    fun getPageIcon(position: Int): Int {
+        return R.drawable.baseline_123_24
+    }
 }
