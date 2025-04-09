@@ -6,6 +6,5 @@
     <string name="change_text">Change the text</string>
     <string name="hello_fragment_one">Hello from fragment one!</string>
     <string name="hello_fragment_two">Hello from fragment two!</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_new_fragment">Add new fragment</string>
 </resources>

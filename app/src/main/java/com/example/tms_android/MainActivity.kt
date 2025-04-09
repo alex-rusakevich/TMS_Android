@@ -1,5 +1,6 @@
 package com.example.tms_android
 
+import DynamicFragmentAdapter
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
@@ -40,15 +41,21 @@ class MainActivity : AppCompatActivity() {
 
             insets
         }
+
+        viewBinding.buttonAddFragment.setOnClickListener {
+            (viewBinding.viewPager.adapter as DynamicFragmentAdapter).addFragment(
+                FragmentOne()
+            )
+        }
     }
 
     private fun setupViewPager() {
         viewBinding.let {
-            val adapter = MyPagerAdapter(this)
+            val adapter = DynamicFragmentAdapter(this)
             it.viewPager.adapter = adapter
             TabLayoutMediator(it.tabLayout, it.viewPager) { tab, position ->
                 tab.text = "Tab ${position + 1}"
-                tab.icon = getDrawable(adapter.getPageIcon(position))
+                tab.icon = getDrawable(R.drawable.baseline_123_24)
             }.attach()
         }
     }
