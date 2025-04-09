@@ -1,72 +1,46 @@
 package com.example.tms_android
 
-import android.content.Intent
-import android.content.IntentFilter
-import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.widget.SimpleAdapter
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import android.util.Log
-import android.view.View
-import com.google.android.material.textfield.TextInputEditText
+import com.example.tms_android.databinding.ActivityMainBinding
 
+/*
+* Использовать simple_list_item_2 в ListView
+
+Отображать заголовок и подзаголовок в каждой строке(использовать SimpleAdapter)
+* */
 class MainActivity : AppCompatActivity() {
-    private lateinit var textInputName : TextInputEditText
-    private val wifiBroadcastReceiver = WifiBroadcastReceiver()
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        textInputName = findViewById(R.id.textInputName)
+        val data: List<Map<String, String>> = List(100) {
+            mapOf("title" to "Title $it", "subtitle" to "Sub-title $it")
+        }
 
-        Log.d("MYLOG", "onCreate")
-    }
+        val adapter = SimpleAdapter(
+            this,
+            data,
+            android.R.layout.simple_list_item_2,
+            arrayOf("title", "subtitle"),
+            intArrayOf(android.R.id.text1, android.R.id.text2)
+        )
 
-    override fun onStart() {
-        super.onStart()
-        registerReceiver(wifiBroadcastReceiver, IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION))
-        Log.d("MYLOG", "onStart")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        unregisterReceiver(wifiBroadcastReceiver)
-        Log.d("MYLOG", "onStop")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("MYLOG", "onDestroy")
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        Log.d("MYLOG", "onRestart")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d("MYLOG", "onResume")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.d("MYLOG", "onPause")
-    }
-
-    fun launchSecondActivity(view: View) {
-        val intent = Intent(this, SecondActivity::class.java)
-        val name = textInputName.getText().toString().trim()
-        intent.putExtra("name", name)
-        startActivity(intent)
+        binding.listViewOne.adapter = adapter
     }
 }
