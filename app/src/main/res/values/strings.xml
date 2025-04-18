@@ -1,4 +1,5 @@
 <resources>
-    <string name="app_name">TMS_Android</string>
-    <string name="greet">Hello, %1$s!</string>
+    <string name="app_name">TMS</string>
+    <string name="add_element">Добавить элемент</string>
+    <string name="element_no">Элемент %d</string>
 </resources>

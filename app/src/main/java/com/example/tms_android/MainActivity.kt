@@ -6,6 +6,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tms_android.databinding.ActivityMainBinding
 
 /*
@@ -15,6 +16,8 @@ import com.example.tms_android.databinding.ActivityMainBinding
 * */
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var adapter: ItemsAdapter
+    private var counter = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,18 +32,17 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val data: List<Map<String, String>> = List(100) {
-            mapOf("title" to "Title $it", "subtitle" to "Sub-title $it")
+        val recyclerView = binding.recyclerView
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        adapter = ItemsAdapter(mutableListOf())
+        recyclerView.adapter = adapter
+
+        binding.addButton.setOnClickListener {
+            counter++
+            val newItem = Item(counter, getString(R.string.element_no, counter))
+            adapter.addItem(newItem)
+
+            recyclerView.smoothScrollToPosition(adapter.itemCount - 1)
         }
-
-        val adapter = SimpleAdapter(
-            this,
-            data,
-            android.R.layout.simple_list_item_2,
-            arrayOf("title", "subtitle"),
-            intArrayOf(android.R.id.text1, android.R.id.text2)
-        )
-
-        binding.listViewOne.adapter = adapter
     }
 }
