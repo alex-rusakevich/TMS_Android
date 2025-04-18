@@ -19,6 +19,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: ItemsAdapter
     private var counter = 0
 
+    private fun updateCheckListEmpty(adapter: ItemsAdapter) {
+        if (adapter.itemCount == 0) {
+            if (binding.viewSwitcher.nextView.id == R.id.emptyStateView) {
+                binding.viewSwitcher.showNext()
+            }
+        } else {
+            if (binding.viewSwitcher.nextView.id != R.id.emptyStateView) {
+                binding.viewSwitcher.showNext()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -36,12 +48,13 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = ItemsAdapter(mutableListOf())
         recyclerView.adapter = adapter
+        updateCheckListEmpty(adapter)
 
         binding.addButton.setOnClickListener {
             counter++
             val newItem = Item(counter, getString(R.string.element_no, counter))
             adapter.addItem(newItem)
-
+            updateCheckListEmpty(adapter)
             recyclerView.smoothScrollToPosition(adapter.itemCount - 1)
         }
     }
