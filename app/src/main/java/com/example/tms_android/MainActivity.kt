@@ -1,72 +1,61 @@
 package com.example.tms_android
 
-import android.content.Intent
-import android.content.IntentFilter
-import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.widget.SimpleAdapter
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import android.util.Log
-import android.view.View
-import com.google.android.material.textfield.TextInputEditText
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.tms_android.databinding.ActivityMainBinding
 
+/*
+* Использовать simple_list_item_2 в ListView
+
+Отображать заголовок и подзаголовок в каждой строке(использовать SimpleAdapter)
+* */
 class MainActivity : AppCompatActivity() {
-    private lateinit var textInputName : TextInputEditText
-    private val wifiBroadcastReceiver = WifiBroadcastReceiver()
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var adapter: ItemsAdapter
+    private var counter = 0
+
+    private fun updateCheckListEmpty(adapter: ItemsAdapter) {
+        if (adapter.itemCount == 0) {
+            if (binding.viewSwitcher.nextView.id == R.id.emptyStateView) {
+                binding.viewSwitcher.showNext()
+            }
+        } else {
+            if (binding.viewSwitcher.nextView.id != R.id.emptyStateView) {
+                binding.viewSwitcher.showNext()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        textInputName = findViewById(R.id.textInputName)
+        val recyclerView = binding.recyclerView
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        adapter = ItemsAdapter(mutableListOf())
+        recyclerView.adapter = adapter
+        updateCheckListEmpty(adapter)
 
-        Log.d("MYLOG", "onCreate")
-    }
-
-    override fun onStart() {
-        super.onStart()
-        registerReceiver(wifiBroadcastReceiver, IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION))
-        Log.d("MYLOG", "onStart")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        unregisterReceiver(wifiBroadcastReceiver)
-        Log.d("MYLOG", "onStop")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("MYLOG", "onDestroy")
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        Log.d("MYLOG", "onRestart")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d("MYLOG", "onResume")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.d("MYLOG", "onPause")
-    }
-
-    fun launchSecondActivity(view: View) {
-        val intent = Intent(this, SecondActivity::class.java)
-        val name = textInputName.getText().toString().trim()
-        intent.putExtra("name", name)
-        startActivity(intent)
+        binding.addButton.setOnClickListener {
+            counter++
+            val newItem = Item(counter, getString(R.string.element_no, counter))
+            adapter.addItem(newItem)
+            updateCheckListEmpty(adapter)
+            recyclerView.smoothScrollToPosition(adapter.itemCount - 1)
+        }
     }
 }
