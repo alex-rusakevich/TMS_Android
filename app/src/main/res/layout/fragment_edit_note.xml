@@ -11,11 +11,11 @@
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_weight="1"
-        android:hint="Введите заметку"/>
+        android:hint="@string/enter_note"/>
 
     <Button
         android:id="@+id/saveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Сохранить"/>
+        android:text="@string/save_note"/>
 </LinearLayout>
