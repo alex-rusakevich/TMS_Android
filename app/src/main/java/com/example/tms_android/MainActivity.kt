@@ -46,6 +46,9 @@ class MainActivity : AppCompatActivity() {
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
+
+        val margin = resources.getDimensionPixelSize(R.dimen.item_margin)
+        recyclerView.addItemDecoration(VerticalMarginItemDecoration(margin))
     }
 
     private fun setupSwipeRefresh() {
