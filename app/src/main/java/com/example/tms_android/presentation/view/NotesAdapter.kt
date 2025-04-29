@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -14,7 +15,8 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class NotesAdapter(
-    private val onDeleteClick: (Note) -> Unit
+    private val onDeleteClick: (Note) -> Unit,
+    private val onNoteClick: (Note) -> Unit
 ) : ListAdapter<Note, NotesAdapter.NoteViewHolder>(NoteDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
@@ -31,12 +33,16 @@ class NotesAdapter(
         private val noteText: TextView = view.findViewById(R.id.noteText)
         private val noteDate: TextView = view.findViewById(R.id.noteDate)
         private val deleteButton: ImageButton = view.findViewById(R.id.deleteButton)
+        private val listItem: View = view
 
         fun bind(note: Note) {
             noteText.text = note.text
             noteDate.text = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
                 .format(note.createdAt)
 
+            listItem.setOnClickListener {
+                onNoteClick(note)
+            }
             deleteButton.setOnClickListener { onDeleteClick(note) }
         }
     }

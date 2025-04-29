@@ -13,8 +13,6 @@ import com.example.tms_android.presentation.viewmodel.NotesViewModel
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val viewModel: NotesViewModel by viewModels()
-
     companion object {
         lateinit var instance: AppCompatActivity
             private set
@@ -34,31 +32,18 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        setupRecyclerView()
-        setupObservers()
-        setupListeners()
 
-        instance = this
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.main, NoteListFragment.newInstance())
+            .commit()
     }
 
-    private fun setupRecyclerView() {
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.adapter = NotesAdapter { note ->
-            viewModel.deleteNote(note.id)
-        }
-    }
+    fun editNote(noteId: Long) {
+        val newFragment = EditNoteFragment.newInstance(noteId)
 
-    private fun setupObservers() {
-        viewModel.notes.observe(this) { notes ->
-            (binding.recyclerView.adapter as NotesAdapter).submitList(notes)
-        }
-    }
-
-    private fun setupListeners() {
-        binding.addButton.setOnClickListener {
-            val text = binding.noteEditText.text.toString()
-            viewModel.addNote(text)
-            binding.noteEditText.text.clear()
-        }
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.main, newFragment)
+            .addToBackStack(null)
+            .commit()
     }
 }

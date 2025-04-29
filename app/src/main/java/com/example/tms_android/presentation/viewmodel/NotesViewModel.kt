@@ -27,6 +27,15 @@ class NotesViewModel : ViewModel() {
         loadNotes()
     }
 
+    fun getNote(id: Long): Note {
+        return repository.getNote(id)
+    }
+
+    fun updateNote(id: Long, text: String) {
+        repository.updateNote(id, text)
+        loadNotes()
+    }
+
     private fun loadNotes() {
         _notes.value = repository.getAllNotes()
     }

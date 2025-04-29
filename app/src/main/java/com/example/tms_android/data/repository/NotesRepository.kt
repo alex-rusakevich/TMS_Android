@@ -6,6 +6,7 @@ import com.example.tms_android.presentation.view.MainActivity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.IOException
+import java.util.Date
 
 class NotesRepository {
     private val notes = mutableListOf<Note>()
@@ -25,6 +26,19 @@ class NotesRepository {
 
     fun deleteNote(id: Long) {
         notes.removeAll { it.id == id }
+        saveNotes()
+    }
+
+    fun getNote(id: Long): Note {
+        return notes.first { it.id == id }
+    }
+
+    fun updateNote(id: Long, text: String) {
+        val index = notes.indexOfFirst { it.id == id }
+        notes[index] = notes[index].copy(
+            text = text,
+            createdAt = Date()
+        )
         saveNotes()
     }
 
