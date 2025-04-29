@@ -15,8 +15,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: NotesViewModel by viewModels()
 
+    companion object {
+        lateinit var instance: AppCompatActivity
+            private set
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        instance = this
+
         enableEdgeToEdge()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -30,6 +37,8 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerView()
         setupObservers()
         setupListeners()
+
+        instance = this
     }
 
     private fun setupRecyclerView() {

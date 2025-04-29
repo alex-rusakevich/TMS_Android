@@ -54,4 +54,5 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.1")
     implementation("androidx.activity:activity-ktx:1.4.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
+    implementation("com.google.code.gson:gson:2.8.9")
 }
