@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">TMS_Android</string>
-    <string name="greet">Hello, %1$s!</string>
+    <string name="load_data">Загрузить данные</string>
+    <string name="please_press_button">Нажми на кнопку! Получишь результат, и твоя мечта осуществится а-а</string>
 </resources>
