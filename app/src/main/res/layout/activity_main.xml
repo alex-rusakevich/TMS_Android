@@ -14,24 +14,19 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <Button
-            android:id="@+id/buttonLaunchSecondActivity"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Запустить вторую активность"
-            android:onClick="launchSecondActivity"
+            android:id="@+id/countdown"
+            android:text="10"
             />
 
-        <com.google.android.material.textfield.TextInputLayout
+        <Button
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/textInputName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Ваше имя" />
-        </com.google.android.material.textfield.TextInputLayout>
+            android:layout_height="wrap_content"
+            android:id="@+id/stopCountdown"
+            android:text="@string/cancel"
+            />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
