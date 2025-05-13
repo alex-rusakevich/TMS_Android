@@ -1,37 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:orientation="vertical"
+    android:clipToPadding="false"
+    tools:context=".presentation.MainActivity">
+
+    <!-- Без вложенного LinearLayout у меня padding и margin не работали -->
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        tools:ignore="UselessParent">
 
-        <Button
-            android:id="@+id/buttonLaunchSecondActivity"
+        <EditText
+            android:id="@+id/searchEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Запустить вторую активность"
-            android:onClick="launchSecondActivity"
-            />
+            android:hint="Введите поисковый запрос"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:minHeight="48dp" />
 
-        <com.google.android.material.textfield.TextInputLayout
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressBar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:visibility="gone"
+            android:indeterminate="true"
+            android:layout_height="4dp"
+            android:layout_marginTop="16dp"/>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/textInputName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Ваше имя" />
-        </com.google.android.material.textfield.TextInputLayout>
+        <TextView
+            android:id="@+id/statusTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:visibility="gone" />
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/resultsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="16dp"
+            android:layout_weight="1" />
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
