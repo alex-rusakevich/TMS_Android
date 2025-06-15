@@ -9,6 +9,7 @@ import com.example.tms_android.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private var progressDirection: ProgressDirection = ProgressDirection.FROM_0_TO_100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +22,16 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        binding.progressView.setOnClickListener {
+            if(progressDirection == ProgressDirection.FROM_0_TO_100) {
+                binding.progressView.setProgress(100f, animate = true)
+                progressDirection = ProgressDirection.FROM_100_TO_0
+            } else {
+                binding.progressView.setProgress(0f, animate = true)
+                progressDirection = ProgressDirection.FROM_0_TO_100
+            }
         }
     }
 }
