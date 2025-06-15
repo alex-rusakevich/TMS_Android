@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="circular_progress_size">200dp</dimen>
+    <dimen name="default_stroke_width">12dp</dimen>
+    <dimen name="text_size_medium">24sp</dimen>
+</resources>
