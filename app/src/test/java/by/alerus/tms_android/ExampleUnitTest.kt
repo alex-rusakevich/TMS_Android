@@ -1,4 +1,4 @@
-package com.example.tms_android
+package by.alerus.tms_android
 
 import org.junit.Test
 
