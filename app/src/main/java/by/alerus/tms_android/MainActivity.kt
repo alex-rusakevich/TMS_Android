@@ -4,48 +4,36 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import by.alerus.tms_android.ui.theme.TMS_AndroidTheme
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,85 +41,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TMS_AndroidTheme {
-                TodoApp()
-            }
-        }
-    }
-}
-
-@Composable
-fun TodoApp() {
-    val navController = rememberNavController()
-    val viewModel: TaskViewModel = viewModel()
-
-    NavHost(navController, startDestination = "list") {
-        composable("list") {
-            TaskListScreen(
-                tasks = viewModel.tasks,
-                onAdd = { navController.navigate("add") },
-                onTaskClick = { id -> navController.navigate("detail/$id") }
-            )
-        }
-
-        composable("add") {
-            AddTaskScreen(
-                onSave = { title ->
-                    viewModel.addTask(title)
-                    navController.popBackStack()
-                },
-                onCancel = { navController.popBackStack() },
-            )
-        }
-
-        composable("detail/{id}") { backStackEntry ->
-            val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
-            val task = viewModel.tasks.find { it.id == id }
-
-            if (task != null) {
-                DetailScreen(
-                    task = task,
-                    onBack = { navController.popBackStack() },
-                    onDelete = {
-                        viewModel.deleteTask(task.id)
-                        navController.popBackStack()
-                    },
-                    onUpdate = { newTitle ->
-                        viewModel.updateTask(task.id, newTitle)
-                    }
-                )
-            } else {
-                navController.popBackStack()
-            }
-        }
-    }
-}
-
-@Composable
-fun TaskListScreen(
-    tasks: List<Task>,
-    onAdd: () -> Unit,
-    onTaskClick: (Int) -> Unit
-) {
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = onAdd) {
-                Icon(Icons.Default.Add, "Добавить")
-            }
-        }
-    ) { padding ->
-        LazyColumn(modifier = Modifier.padding(padding)) {
-            items(tasks) { task ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .clickable { onTaskClick(task.id) }
-                ) {
-                    Text(
-                        text = task.title,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
+                SearchAutoCompleteScreen()
             }
         }
     }
@@ -139,129 +49,128 @@ fun TaskListScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTaskScreen(
-    onSave: (String) -> Unit,
-    onCancel: () -> Unit
-) {
-    var text by remember { mutableStateOf("") }
+fun SearchAutoCompleteScreen() {
+    var searchQuery by remember { mutableStateOf("") }
+    var searchResults by remember { mutableStateOf<List<String>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Добавить задачу") },
-                navigationIcon = {
-                    IconButton(onClick = onCancel) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+    val searchObservable = remember(searchQuery) {
+        Observable.just(searchQuery)
+            .debounce(300, TimeUnit.MILLISECONDS)
+            .distinctUntilChanged()
+            .filter { it.length >= 3 }
+            .switchMap { query ->
+                simulateServerRequest(query)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .onErrorResumeNext { throwable: Throwable ->
+                        Observable.just(emptyList<String>())
                     }
-                }
-            )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .padding(16.dp)
-                .fillMaxSize()
-        ) {
-            OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
-                label = { Text("Название задачи") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Button(onClick = onCancel) {
-                    Text("Отмена")
-                }
-
-                Spacer(Modifier.width(8.dp))
-
-                Button(
-                    onClick = { onSave(text) },
-                    enabled = text.isNotBlank()
-                ) {
-                    Text("Сохранить")
-                }
             }
+    }
+
+    DisposableEffect(searchQuery) {
+        val disposable = searchObservable
+            .subscribe(
+                { results ->
+                    searchResults = results
+                    isLoading = false
+                    errorMessage = null
+                },
+                { error ->
+                    errorMessage = error.message
+                    isLoading = false
+                    searchResults = emptyList()
+                }
+            )
+
+        onDispose {
+            disposable.dispose()
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DetailScreen(
-    task: Task,
-    onBack: () -> Unit,
-    onDelete: () -> Unit,
-    onUpdate: (String) -> Unit  // Add this parameter
-) {
-    var isEditing by remember { mutableStateOf(false) }
-    var editedTitle by remember { mutableStateOf(task.title) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (isEditing) "Редактировать" else "Детали задачи") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        if (isEditing) {
-                            onUpdate(editedTitle)
-                        }
-                        isEditing = !isEditing
-                    }) {
-                        Icon(
-                            imageVector = if (isEditing) Icons.Default.Check else Icons.Default.Edit,
-                            contentDescription = if (isEditing) "Сохранить" else "Редактировать"
-                        )
-                    }
-                }
+                title = { Text("Поиск с автодополнением") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary
+                )
             )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .padding(16.dp)
-        ) {
-            if (isEditing) {
-                OutlinedTextField(
-                    value = editedTitle,
-                    onValueChange = { editedTitle = it },
-                    label = { Text("Название задачи") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                    )
-                )
-            } else {
-                Text(
-                    text = task.title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            Button(
-                onClick = onDelete,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
-                )
+        },
+        content = { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(16.dp)
+                    .fillMaxSize()
             ) {
-                Text("Удалить")
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { newText ->
+                        searchQuery = newText
+                        isLoading = true
+                        errorMessage = null
+                    },
+                    label = { Text("Поиск") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (isLoading) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
+
+                errorMessage?.let {
+                    Text(
+                        text = "Ошибка: $it",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LazyColumn {
+                    items(searchResults.size) { index ->
+                        Text(
+                            text = searchResults[index],
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .fillMaxWidth()
+                        )
+                        HorizontalDivider()
+                    }
+                }
             }
+        }
+    )
+}
+
+private fun simulateServerRequest(query: String): Observable<List<String>> {
+    return Observable.create { emitter ->
+        try {
+            Thread.sleep(500 + (Math.random() * 1000).toLong())
+
+            // Рандомная ошибка. На всякий случай
+            if (Math.random() < 0.1) {
+                throw RuntimeException("Server error occurred")
+            }
+
+            val results = if (query.isBlank()) {
+                emptyList()
+            } else {
+                List((1..5).random()) {
+                    "$query result ${it + 1}"
+                }
+            }
+
+            emitter.onNext(results)
+            emitter.onComplete()
+        } catch (e: Exception) {
+            emitter.onError(e)
         }
     }
 }
