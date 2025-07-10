@@ -4,39 +4,48 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import by.alerus.tms_android.ui.theme.TMS_AndroidTheme
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,14 +53,83 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TMS_AndroidTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    UserProfile(
-                        user = User(
-                            name="Куджо Джотаро",
-                            description="Уехал в Египет в поисках DIO\nЖенщинам не писать",
-                            avatarId = R.drawable.avatar,
-                            birthDate = Date(1971 - 1900, 4, 9)
-                        )
+                TodoApp()
+            }
+        }
+    }
+}
+
+@Composable
+fun TodoApp() {
+    val navController = rememberNavController()
+    val viewModel: TaskViewModel = viewModel()
+
+    NavHost(navController, startDestination = "list") {
+        composable("list") {
+            TaskListScreen(
+                tasks = viewModel.tasks,
+                onAdd = { navController.navigate("add") },
+                onTaskClick = { id -> navController.navigate("detail/$id") }
+            )
+        }
+
+        composable("add") {
+            AddTaskScreen(
+                onSave = { title ->
+                    viewModel.addTask(title)
+                    navController.popBackStack()
+                },
+                onCancel = { navController.popBackStack() },
+            )
+        }
+
+        composable("detail/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
+            val task = viewModel.tasks.find { it.id == id }
+
+            if (task != null) {
+                DetailScreen(
+                    task = task,
+                    onBack = { navController.popBackStack() },
+                    onDelete = {
+                        viewModel.deleteTask(task.id)
+                        navController.popBackStack()
+                    },
+                    onUpdate = { newTitle ->
+                        viewModel.updateTask(task.id, newTitle)
+                    }
+                )
+            } else {
+                navController.popBackStack()
+            }
+        }
+    }
+}
+
+@Composable
+fun TaskListScreen(
+    tasks: List<Task>,
+    onAdd: () -> Unit,
+    onTaskClick: (Int) -> Unit
+) {
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(onClick = onAdd) {
+                Icon(Icons.Default.Add, "Добавить")
+            }
+        }
+    ) { padding ->
+        LazyColumn(modifier = Modifier.padding(padding)) {
+            items(tasks) { task ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .clickable { onTaskClick(task.id) }
+                ) {
+                    Text(
+                        text = task.title,
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
             }
@@ -59,139 +137,131 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview
-fun UserProfile(user: User = User()) {
-    Column (modifier = Modifier
-        .fillMaxSize()) {
-        UserAvatar(user.name, user.avatarId)
-        UserInfo(user.description, user.birthDate)
-        UserActionButtons()
-    }
-}
+fun AddTaskScreen(
+    onSave: (String) -> Unit,
+    onCancel: () -> Unit
+) {
+    var text by remember { mutableStateOf("") }
 
-@Composable
-fun UserAvatar(name: String, avatarId: Int) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(1f)
-    ) {
-        Image(
-            painter = painterResource(id = avatarId),
-            contentDescription = "Profile photo",
-            contentScale = ContentScale.Crop,
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Добавить задачу") },
+                navigationIcon = {
+                    IconButton(onClick = onCancel) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Column(
             modifier = Modifier
+                .padding(padding)
+                .padding(16.dp)
                 .fillMaxSize()
-        )
-        Text(text = name, modifier = Modifier
-            .align(Alignment.BottomStart)
-            .padding(16.dp),
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
+        ) {
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text("Название задачи") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                )
+            )
+
+            Row(modifier = Modifier.padding(top = 16.dp)) {
+                Button(onClick = onCancel) {
+                    Text("Отмена")
+                }
+
+                Spacer(Modifier.width(8.dp))
+
+                Button(
+                    onClick = { onSave(text) },
+                    enabled = text.isNotBlank()
+                ) {
+                    Text("Сохранить")
+                }
+            }
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserInfo(userDescription: String, birthDate: Date) {
-    Text(
-        text = "День рождения:",
-        fontSize = 14.sp,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                top = 16.dp,
-                start = 16.dp,
-                end = 16.dp,
-                bottom = 0.dp
-            ),
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-    Text(
-        text = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(birthDate),
-        fontSize = 16.sp,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                top = 0.dp,
-                start = 16.dp,
-                end = 16.dp,
-                bottom = 0.dp
-            ),
-        color = MaterialTheme.colorScheme.onSurface
-    )
-    Text(
-        text = "О себе:",
-        fontSize = 14.sp,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                top = 16.dp,
-                start = 16.dp,
-                end = 16.dp,
-                bottom = 0.dp
-            ),
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-    Text(
-        text = userDescription,
-        fontSize = 16.sp,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                top = 0.dp,
-                start = 16.dp,
-                end = 16.dp,
-                bottom = 0.dp
-            ),
-        color = MaterialTheme.colorScheme.onSurface
-    )
-}
+fun DetailScreen(
+    task: Task,
+    onBack: () -> Unit,
+    onDelete: () -> Unit,
+    onUpdate: (String) -> Unit  // Add this parameter
+) {
+    var isEditing by remember { mutableStateOf(false) }
+    var editedTitle by remember { mutableStateOf(task.title) }
 
-@Composable
-fun UserActionButtons() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        IconButton(
-            onClick = {},
-            modifier = Modifier.weight(1f)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Call,
-                contentDescription = "Call",
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.primary
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(if (isEditing) "Редактировать" else "Детали задачи") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        if (isEditing) {
+                            onUpdate(editedTitle)
+                        }
+                        isEditing = !isEditing
+                    }) {
+                        Icon(
+                            imageVector = if (isEditing) Icons.Default.Check else Icons.Default.Edit,
+                            contentDescription = if (isEditing) "Сохранить" else "Редактировать"
+                        )
+                    }
+                }
             )
         }
-
-        IconButton(
-            onClick = {},
-            modifier = Modifier.weight(1f)
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .padding(16.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.Email,
-                contentDescription = "Message",
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
+            if (isEditing) {
+                OutlinedTextField(
+                    value = editedTitle,
+                    onValueChange = { editedTitle = it },
+                    label = { Text("Название задачи") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                    )
+                )
+            } else {
+                Text(
+                    text = task.title,
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
 
-        IconButton(
-            onClick = {},
-            modifier = Modifier.weight(1f)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add friend",
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
+            Spacer(Modifier.height(16.dp))
+
+            Button(
+                onClick = onDelete,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text("Удалить")
+            }
         }
     }
 }
